@@ -4,7 +4,6 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.support.AbstractBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -15,7 +14,6 @@ import org.yeauty.exception.DeploymentException;
 import org.yeauty.support.*;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -47,7 +45,7 @@ public class PojoMethodMapping {
     private final MethodArgumentResolver[] onMessageArgResolvers;
     private final MethodArgumentResolver[] onBinaryArgResolvers;
     private final MethodArgumentResolver[] onEventArgResolvers;
-    private final Class pojoClazz;
+    private final Class<?> pojoClazz;
     private final ApplicationContext applicationContext;
     private final AbstractBeanFactory beanFactory;
 
@@ -244,11 +242,8 @@ public class PojoMethodMapping {
         return false;
     }
 
-    Object getEndpointInstance() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Object implement = pojoClazz.getDeclaredConstructor().newInstance();
-        AutowiredAnnotationBeanPostProcessor postProcessor = applicationContext.getBean(AutowiredAnnotationBeanPostProcessor.class);
-        postProcessor.postProcessPropertyValues(null, null, implement, null);
-        return implement;
+    Object getEndpointInstance() {
+        return applicationContext.getBean(pojoClazz);
     }
 
     Method getBeforeHandshake() {
